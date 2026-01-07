@@ -1,51 +1,51 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Zap, ShieldCheck, Cpu, Code2, GitBranch, Terminal } from 'lucide-react';
+import { Zap, ShieldCheck, Cpu, Database, GitBranch, Terminal } from 'lucide-react';
 
 const features = [
     {
-        name: 'Expert Mode',
-        description: 'A strictly deterministic workflow that prioritizes precision and user control over conversational ambiguity.',
+        name: 'Supervisor & Planner',
+        description: 'Read-only analysis and user-approved planning. No rogue edits, no "hallucinated" files.',
         icon: ShieldCheck,
     },
     {
-        name: 'Agentic SDLC',
-        description: 'Autonomous agents manage the entire lifecycle: planning, execution, verification, and deployment.',
+        name: 'Deterministic execution',
+        description: 'The proper execution of the plan without any deviation. If it gets stuck, it asks you, it does not loop.',
         icon: Cpu,
     },
     {
-        name: 'Hybrid Search',
-        description: 'Combines semantic understanding with exact code pointers (Merkle Hashes) for unmatchable context accuracy.',
-        icon: Code2,
+        name: 'Merkle Tree Context',
+        description: 'Hybrid search combines semantic understanding with exact code pointers for 100% context accuracy.',
+        icon: Database,
     },
     {
-        name: 'Speed vs Accuracy',
-        description: 'Choose your operating mode: "Fast" for quick prototyping or "Slow" for rigorous, verified engineering.',
+        name: 'No "Magic" Fixes',
+        description: 'Agents suggest changes, but you verify them. We prioritize correctness over autonomy.',
         icon: Zap,
     },
     {
         name: 'Shadow Workspace',
-        description: 'Agents operate in a virtual shadow filesystem, preventing destructive changes until verification passes.',
+        description: 'Agents operate in a virtual shadow filesystem. Verify changes safely before they touch disk.',
         icon: GitBranch,
     },
     {
-        name: 'Terminal Integration',
-        description: 'Deep shell integration allows agents to run builds, tests, and git commands autonomously.',
+        name: 'Deep Terminal Integration',
+        description: 'Agents can run builds and tests to verify their own work, reporting back to the Auditor.',
         icon: Terminal,
     },
 ];
 
 export default function FeatureGrid() {
     return (
-        <div className="bg-zinc-950 py-24 sm:py-32 border-t border-zinc-900">
+        <section id="features" className="bg-zinc-950 py-24 sm:py-32 border-t border-zinc-900">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto max-w-2xl lg:text-center">
                     <h2 className="text-base font-semibold leading-7 text-indigo-400">Why Resolv?</h2>
                     <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                        Built for the AI-Native Era
+                        Built for Engineering Rigor
                     </p>
                     <p className="mt-6 text-lg leading-8 text-zinc-400">
-                        Resolv isn't just an editor; it's an intelligent runtime for software development.
+                        We don't promise AGI. We promise a tool that doesn't break your build.
                     </p>
                 </div>
                 <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
@@ -53,13 +53,13 @@ export default function FeatureGrid() {
                         {features.map((feature, index) => (
                             <motion.div
                                 key={feature.name}
-                                className="flex flex-col"
+                                className="flex flex-col bg-zinc-900/40 p-8 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-colors"
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 viewport={{ once: true }}
                             >
-                                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-white">
+                                <dt className="flex items-center gap-x-3 text-base font-bold leading-7 text-white font-heading">
                                     <feature.icon className="h-5 w-5 flex-none text-indigo-400" aria-hidden="true" />
                                     {feature.name}
                                 </dt>
@@ -71,6 +71,6 @@ export default function FeatureGrid() {
                     </dl>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
