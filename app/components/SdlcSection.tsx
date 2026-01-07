@@ -5,8 +5,8 @@ import { Eye, Map, CheckCircle, Play, ArrowRight, Lock, UserCheck } from 'lucide
 const steps = [
     {
         name: 'Supervisor',
-        role: 'Interrogation',
-        description: 'Does not guess. It interrogates you about tradeoffs, edge cases, and intent until ambiguity is zero.',
+        role: 'Observation',
+        description: 'Like a senior lead, it pushes back. It challenges vague requirements instead of silently guessing, ensuring you build the right thing.',
         icon: Eye, // Could switch to MessageCircleQuestion if imported, but Eye is okay for "Observation/Scrutiny"
         color: 'text-blue-400',
         bg: 'bg-blue-400/10',

@@ -31,17 +31,36 @@ export default function Hero() {
                     </h1>
 
                     <p className="mt-8 text-lg sm:text-xl leading-8 text-zinc-400 max-w-3xl mx-auto font-light">
-                        Stop fighting agents that guess. <span className="text-zinc-200 font-medium">Resolv</span> forces you to clarify tradeoffs before code is written, ensuring the execution is perfect every time.
+                        Stop fighting agents that guess. <span className="text-zinc-200 font-medium">Resolv</span> forces you to clarify tradeoffs before code is written, ensuring the execution matches your intent.
                     </p>
 
                     <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6">
-                        <a href="#expert-mode" className="group rounded-full bg-white px-8 py-4 text-sm font-semibold text-zinc-950 shadow-lg shadow-white/10 hover:bg-zinc-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all w-full sm:w-auto relative overflow-hidden">
-                            <span className="relative z-10">Start Expert Mode</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-zinc-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <a
+                            href="/login"
+                            className="rounded-full bg-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all w-full sm:w-auto text-center"
+                        >
+                            Get Started
                         </a>
-                        <a href="#" className="rounded-full bg-white/5 ring-1 ring-white/10 px-8 py-4 text-sm font-semibold text-white shadow-sm hover:bg-white/10 hover:ring-white/20 transition-all w-full sm:w-auto flex items-center justify-center gap-2 backdrop-blur-sm">
-                            Read the Philosophy <ArrowRight className="h-4 w-4" />
+                        <a
+                            href="#expert-mode"
+                            className="text-sm font-semibold leading-6 text-white hover:text-indigo-400 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center"
+                        >
+                            Learn more <span aria-hidden="true">→</span>
                         </a>
+                    </div>
+
+                    <div className="mt-24 pt-8 border-t border-white/5">
+                        <figure className="mx-auto max-w-3xl">
+                            <blockquote className="font-serif text-xl sm:text-2xl font-light italic leading-relaxed text-zinc-500">
+                                &ldquo;He who asks a question is a fool for five minutes; he who does not ask remains a fool forever.&rdquo;
+                            </blockquote>
+                            <figcaption className="mt-4 text-xs font-semibold text-zinc-600 uppercase tracking-widest">
+                                Chinese Proverb
+                            </figcaption>
+                            <p className="mt-6 text-zinc-500 font-light">
+                                In software, asking isn&apos;t weakness. It&apos;s the only way to avoid building the wrong thing.
+                            </p>
+                        </figure>
                     </div>
                 </motion.div>
             </div>

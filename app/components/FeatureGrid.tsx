@@ -9,19 +9,19 @@ const features = [
         icon: ShieldCheck,
     },
     {
+        name: 'Silence is Dangerous',
+        description: 'When an agent is silent, it is guessing. Resolv breaks the silence to clarify ambiguity, saving you hours of backtracking.',
+        icon: Zap,
+    },
+    {
         name: 'Deterministic execution',
         description: 'The proper execution of the plan without any deviation. If it gets stuck, it asks you, it does not loop.',
         icon: Cpu,
     },
     {
-        name: 'Merkle Tree Context',
-        description: 'Hybrid search combines semantic understanding with exact code pointers for 100% context accuracy.',
+        name: 'Precision Context',
+        description: 'Efficiency meets accuracy. Our context engine feeds the Supervisor exactly what it needs to validate the plan, ensuring highly relevant knowledge.',
         icon: Database,
-    },
-    {
-        name: 'Zero Hallucinations',
-        description: 'By forcing you to answer questions upfront, we eliminate the "guessing game" that leads to broken code.',
-        icon: Zap,
     },
     {
         name: 'Shadow Workspace',
