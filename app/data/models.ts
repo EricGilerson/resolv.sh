@@ -24,27 +24,11 @@ export interface ModelsResponse {
 
 export const PREMIER_MODELS: Model[] = [
     {
-        id: 'gpt-4o',
-        name: 'GPT-4o',
-        provider: 'OpenAI',
-        contextWindow: 128000,
-        description: 'Flagship high-intelligence model for complex, multi-step tasks. Multimodal by default.',
-        capabilities: {
-            vision: true,
-            coding: true,
-            functionCalling: true,
-        },
-        pricing: {
-            input: 5.00,
-            output: 15.00,
-        },
-    },
-    {
-        id: 'claude-3-5-sonnet-latest',
+        id: 'anthropic/claude-3.5-sonnet',
         name: 'Claude 3.5 Sonnet',
         provider: 'Anthropic',
         contextWindow: 200000,
-        description: 'Most intelligent model to date, excelling at coding, nuance, and complex reasoning.',
+        description: 'Top-tier reasoning and coding capabilities. Ideal for complex architectural tasks.',
         capabilities: {
             vision: true,
             coding: true,
@@ -56,11 +40,27 @@ export const PREMIER_MODELS: Model[] = [
         },
     },
     {
-        id: 'gemini-1.5-pro-latest',
+        id: 'openai/gpt-4o',
+        name: 'GPT-4o',
+        provider: 'OpenAI',
+        contextWindow: 128000,
+        description: 'The flagship "omni" model. Extremely fast and versatile with strong multimodal performance.',
+        capabilities: {
+            vision: true,
+            coding: true,
+            functionCalling: true,
+        },
+        pricing: {
+            input: 2.50,
+            output: 10.00,
+        },
+    },
+    {
+        id: 'google/gemini-pro-1.5',
         name: 'Gemini 1.5 Pro',
         provider: 'Google',
         contextWindow: 2000000,
-        description: 'Mid-size multimodal model optimized for scaling across a wide range of tasks with a massive context window.',
+        description: 'Massive context window (2M tokens) for processing entire repositories or large documentation sets.',
         capabilities: {
             vision: true,
             coding: true,
@@ -75,39 +75,51 @@ export const PREMIER_MODELS: Model[] = [
 
 export const OPEN_SOURCE_MODELS: Model[] = [
     {
-        id: 'llama-3.1-405b-instruct',
-        name: 'Llama 3.1 405B',
+        id: 'google/gemini-2.0-flash-exp:free',
+        name: 'Gemini 2.0 Flash (Free)',
+        provider: 'Google',
+        contextWindow: 1048576,
+        description: 'Experimental high-speed model with a massive 1M token context window. Great for quick queries.',
+        capabilities: {
+            vision: true,
+            coding: true,
+            functionCalling: true,
+        },
+        pricing: {
+            input: 0,
+            output: 0,
+        },
+    },
+    {
+        id: 'meta-llama/llama-3.3-70b-instruct:free',
+        name: 'Llama 3.3 70B (Free)',
         provider: 'Meta',
         contextWindow: 128000,
-        description: 'The first frontier-level open source model. Unrivaled capability among open weights.',
+        description: 'Highly capable open-weight model with strong reasoning, rivaling proprietary options.',
         capabilities: {
             vision: false,
             coding: true,
             functionCalling: true,
         },
-    },
-    {
-        id: 'mixtral-8x22b-instruct',
-        name: 'Mixtral 8x22B',
-        provider: 'Mistral AI',
-        contextWindow: 64000,
-        description: 'A powerful sparse mixture-of-experts model with strong reasoning, math, and coding capabilities.',
-        capabilities: {
-            vision: false,
-            coding: true,
-            functionCalling: true,
+        pricing: {
+            input: 0,
+            output: 0,
         },
     },
     {
-        id: 'deepseek-coder-v2',
-        name: 'DeepSeek Coder V2',
+        id: 'deepseek/deepseek-r1:free',
+        name: 'DeepSeek R1 (Free)',
         provider: 'DeepSeek',
-        contextWindow: 128000,
-        description: 'Specialized model for code generation and analysis, outperforming many closed models on benchmarks.',
+        contextWindow: 64000,
+        description: 'Optimized for reasoning and coding tasks. A strong alternative to larger proprietary models.',
         capabilities: {
             vision: false,
             coding: true,
             functionCalling: true,
+        },
+        pricing: {
+            input: 0,
+            output: 0,
         },
     },
 ];
