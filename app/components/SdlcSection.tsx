@@ -5,18 +5,18 @@ import { Eye, Map, CheckCircle, Play, ArrowRight, Lock, UserCheck } from 'lucide
 const steps = [
     {
         name: 'Supervisor',
-        role: 'Observation',
-        description: 'Analyzes the codebase and user request. Cannot edit code.',
-        icon: Eye,
+        role: 'Interrogation',
+        description: 'Does not guess. It interrogates you about tradeoffs, edge cases, and intent until ambiguity is zero.',
+        icon: Eye, // Could switch to MessageCircleQuestion if imported, but Eye is okay for "Observation/Scrutiny"
         color: 'text-blue-400',
         bg: 'bg-blue-400/10',
         border: 'border-blue-400/20',
-        status: 'Read-Only'
+        status: 'Forces Clarity'
     },
     {
         name: 'Planner',
         role: 'Strategy',
-        description: 'Creates a step-by-step implementation plan for approval.',
+        description: 'Creates a step-by-step implementation plan. You review it, refine it, and approve it.',
         icon: Map,
         color: 'text-amber-400',
         bg: 'bg-amber-400/10',
@@ -26,7 +26,7 @@ const steps = [
     {
         name: 'Executor',
         role: 'Action',
-        description: 'Executes the approved plan precisely. Stops after completion.',
+        description: 'Executes the approved plan precisely. If it gets stuck, it pauses for help instead of hallucinating.',
         icon: Play,
         color: 'text-emerald-400',
         bg: 'bg-emerald-400/10',
@@ -36,7 +36,7 @@ const steps = [
     {
         name: 'Auditor',
         role: 'Verification',
-        description: 'Verifies the changes against the original plan and requirements.',
+        description: 'Verifies the changes against the original plan. If it fails, the cycle restarts with better context.',
         icon: CheckCircle,
         color: 'text-purple-400',
         bg: 'bg-purple-400/10',

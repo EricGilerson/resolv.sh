@@ -26,12 +26,12 @@ export default function Hero() {
                     </div>
 
                     <h1 className="text-5xl font-bold tracking-tight text-white sm:text-7xl lg:text-8xl pb-4 font-heading">
-                        <span className="block text-gradient">Not Autonomous.</span>
-                        <span className="block mt-2 text-4xl sm:text-6xl text-zinc-200">User-Guided. Deterministic.</span>
+                        <span className="block text-gradient">Resolv</span>
+                        <span className="block mt-2 text-4xl sm:text-6xl text-zinc-200">Interrogates Ambiguity.</span>
                     </h1>
 
                     <p className="mt-8 text-lg sm:text-xl leading-8 text-zinc-400 max-w-3xl mx-auto font-light">
-                        Stop fighting agents that get stuck in loops. <span className="text-zinc-200 font-medium">Resolv</span> puts you back in control with a rigorous, verified 4-step SDLC overseen by you, the expert.
+                        Stop fighting agents that guess. <span className="text-zinc-200 font-medium">Resolv</span> forces you to clarify tradeoffs before code is written, ensuring the execution is perfect every time.
                     </p>
 
                     <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6">

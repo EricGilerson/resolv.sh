@@ -4,8 +4,8 @@ import { Zap, ShieldCheck, Cpu, Database, GitBranch, Terminal } from 'lucide-rea
 
 const features = [
     {
-        name: 'Supervisor & Planner',
-        description: 'Read-only analysis and user-approved planning. No rogue edits, no "hallucinated" files.',
+        name: 'Adversarial Supervisor',
+        description: 'Most agents guess. Ours asks. The Supervisor identifies ambiguity and blocks progress until you clarify exactly what you want.',
         icon: ShieldCheck,
     },
     {
@@ -19,8 +19,8 @@ const features = [
         icon: Database,
     },
     {
-        name: 'No "Magic" Fixes',
-        description: 'Agents suggest changes, but you verify them. We prioritize correctness over autonomy.',
+        name: 'Zero Hallucinations',
+        description: 'By forcing you to answer questions upfront, we eliminate the "guessing game" that leads to broken code.',
         icon: Zap,
     },
     {
