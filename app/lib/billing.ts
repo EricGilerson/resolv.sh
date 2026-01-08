@@ -140,3 +140,37 @@ export async function recordChatUsage(userId: string, model: string, baseCost: n
 
     if (chatError) console.error('Error logging chat:', chatError);
 }
+
+/**
+ * Calculate cost from token counts and model pricing.
+ * Returns the base cost (before markup or fees) in dollars.
+ */
+import { getModelById } from '@/app/data/models';
+
+export function calculateBaseCostFromTokens(
+    modelId: string,
+    promptTokens: number,
+    completionTokens: number
+): number {
+    const model = getModelById(modelId);
+    if (!model || !model.pricing) {
+        // Fallback or free if no pricing info
+        return 0;
+    }
+
+    // Pricing is usually per 1M tokens
+    const inputCost = (promptTokens / 1_000_000) * model.pricing.input;
+    const outputCost = (completionTokens / 1_000_000) * model.pricing.output;
+
+    return inputCost + outputCost;
+}
+
+/**
+ * Async wrapper for recording chat - fire and forget.
+ * This is used to allow the API to return quickly while DB updates happen in background.
+ */
+export function recordChatUsageAsync(userId: string, modelId: string, baseCost: number) {
+    recordChatUsage(userId, modelId, baseCost).catch(err => {
+        console.error('FAILED to record async chat usage:', err);
+    });
+}

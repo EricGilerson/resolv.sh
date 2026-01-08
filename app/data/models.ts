@@ -123,3 +123,7 @@ export const OPEN_SOURCE_MODELS: Model[] = [
         },
     },
 ];
+
+export function getModelById(modelId: string): Model | undefined {
+    return [...PREMIER_MODELS, ...OPEN_SOURCE_MODELS].find(m => m.id === modelId);
+}
