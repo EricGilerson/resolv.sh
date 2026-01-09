@@ -91,6 +91,22 @@ export const OPEN_SOURCE_MODELS: Model[] = [
         },
     },
     {
+        id: 'google/gemini-2.0-flash-thinking-exp:free',
+        name: 'Gemini 2.0 Flash Thinking (Free)',
+        provider: 'Google',
+        contextWindow: 1048576,
+        description: 'Thinking model with enhanced reasoning capabilities, ideal for complex problem solving.',
+        capabilities: {
+            vision: true,
+            coding: true,
+            functionCalling: true,
+        },
+        pricing: {
+            input: 0,
+            output: 0,
+        },
+    },
+    {
         id: 'meta-llama/llama-3.3-70b-instruct:free',
         name: 'Llama 3.3 70B (Free)',
         provider: 'Meta',
@@ -112,6 +128,22 @@ export const OPEN_SOURCE_MODELS: Model[] = [
         provider: 'DeepSeek',
         contextWindow: 64000,
         description: 'Optimized for reasoning and coding tasks. A strong alternative to larger proprietary models.',
+        capabilities: {
+            vision: false,
+            coding: true,
+            functionCalling: true,
+        },
+        pricing: {
+            input: 0,
+            output: 0,
+        },
+    },
+    {
+        id: 'mistralai/mistral-small-3.1-24b-instruct:free',
+        name: 'Mistral Small 3 (Free)',
+        provider: 'Mistral',
+        contextWindow: 32000,
+        description: 'Efficient and capable model from Mistral, balancing performance and speed.',
         capabilities: {
             vision: false,
             coding: true,
