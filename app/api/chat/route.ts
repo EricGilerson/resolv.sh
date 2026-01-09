@@ -4,7 +4,9 @@ import { hasSufficientBalance, calculateBaseCostFromTokens, recordChatUsageAsync
 import { EXPERT_PROMPTS, GENERAL_AGENT_PROMPT, ASK_MODE_PROMPT } from '@/app/lib/prompts';
 import { getModelById } from '@/app/data/models';
 
-export const runtime = 'edge';
+// export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 const MODE_PROMPTS: any = {
     expert: EXPERT_PROMPTS,
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Parse Request
     const body = await req.json();
-    const { mode, modelId, message, context, expertStep } = body;
+    const { mode, modelId, message, context, expertStep, include_reasoning } = body;
 
     // Validate Model
     const model = getModelById(modelId);
@@ -94,27 +96,49 @@ ${context?.diff || '(empty)'}
 
 ### project.txt
 ${context?.project || '(empty)'}
+
+### previousChat.txt
+${context?.previousChat || '(empty)'}
 `;
 
     // 5. Forward to OpenRouter
-    const openrouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://resolv.dev',
-            'X-Title': 'Resolv IDE',
-        },
-        body: JSON.stringify({
-            model: modelId,
-            messages: [
-                { role: 'system', content: fullSystemPrompt },
-                { role: 'user', content: message },
-            ],
-            stream: true,
-            include_reasoning: true
-        }),
-    });
+    const controller = new AbortController();
+    const abortListener = () => {
+        controller.abort();
+    };
+    req.signal.addEventListener('abort', abortListener);
+
+    let openrouterResponse;
+    try {
+        openrouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            signal: controller.signal,
+            method: 'POST',
+            body: JSON.stringify({
+                model: modelId,
+                messages: [
+                    { role: 'system', content: fullSystemPrompt },
+                    { role: 'user', content: message },
+                ],
+                stream: true,
+                include_reasoning: include_reasoning ?? true
+            }),
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://resolv.dev',
+                'X-Title': 'Resolv IDE',
+            },
+            cache: 'no-store',
+            next: { revalidate: 0 }
+        });
+    } catch (err: any) {
+        req.signal.removeEventListener('abort', abortListener);
+        if (err.name === 'AbortError' || err.message?.includes('aborted')) {
+            console.log('Client disconnected during fetch initialization');
+            return new Response(null, { status: 499 });
+        }
+        throw err;
+    }
 
     if (!openrouterResponse.ok) {
         const errorText = await openrouterResponse.text();
@@ -134,6 +158,7 @@ ${context?.project || '(empty)'}
             let buffer = '';
             let promptTokens = 0;
             let completionTokens = 0;
+            let completionCharsCount = 0; // Track output length for estimation fallback
 
             try {
                 while (true) {
@@ -158,14 +183,14 @@ ${context?.project || '(empty)'}
                                 // 2. Extract Delta
                                 const delta = json.choices?.[0]?.delta?.content;
                                 if (delta) {
+                                    completionCharsCount += delta.length;
                                     controller.enqueue(encoder.encode(`event: content\ndata: ${JSON.stringify({ delta })}\n\n`));
                                 }
 
                                 // 3. Handle Reasoning (Optional, if model supports it)
                                 const reasoning = json.choices?.[0]?.delta?.reasoning;
                                 if (reasoning) {
-                                    // Maybe emit as a different event or just content?
-                                    // For now, let's treat as content or ignore.
+                                    controller.enqueue(encoder.encode(`event: reasoning\ndata: ${JSON.stringify({ reasoning })}\n\n`));
                                 }
 
                             } catch (e) {
@@ -174,23 +199,57 @@ ${context?.project || '(empty)'}
                         }
                     }
                 }
-            } catch (err) {
-                console.error('Stream processing error:', err);
-                controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ message: 'Stream interrupted' })}\n\n`));
+            } catch (err: any) {
+                // Ignore disconnect errors - aggressively input check
+                const errString = err?.toString() || '';
+                const isAborted =
+                    err?.name === 'AbortError' ||
+                    err?.name === 'ResponseAborted' ||
+                    err?.message?.includes('aborted') ||
+                    err?.message?.includes('ResponseAborted') ||
+                    err?.code === 'ECONNRESET' ||
+                    errString.includes('ResponseAborted') ||
+                    errString.includes('aborted');
+
+                if (isAborted) {
+                    console.log('Client/Upstream disconnected');
+                } else {
+                    console.error('Stream processing error:', err);
+                    controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ message: 'Stream interrupted' })}\n\n`));
+                }
             } finally {
                 // Done event
-                controller.enqueue(encoder.encode('event: done\ndata: {}\n\n'));
-                controller.close();
+                try {
+                    controller.enqueue(encoder.encode('event: done\ndata: {}\n\n'));
+                    controller.close();
+                } catch (e) {
+                    // Ignore error if controller is already closed or client disconnected
+                }
+
+                req.signal.removeEventListener('abort', abortListener);
 
                 // 7. Async Billing
-                if (promptTokens > 0 || completionTokens > 0) {
-                    const baseCost = calculateBaseCostFromTokens(modelId, promptTokens, completionTokens);
-                    console.log(`[Billing] User ${userId}: ${modelId} | ${promptTokens}in/${completionTokens}out | $${baseCost}`);
+                try {
+                    // Fallback to estimation if usage stats are missing (e.g. forced abort)
+                    if (promptTokens === 0 && completionTokens === 0) {
+                        const estimatedPromptChars = (fullSystemPrompt?.length || 0) + (message?.length || 0);
 
-                    // Fire and forget
-                    recordChatUsageAsync(userId, modelId, baseCost);
-                } else {
-                    console.warn('[Billing] No usage stats found in stream for user', userId);
+                        // Estimation: ~4 chars per token
+                        promptTokens = Math.ceil(estimatedPromptChars / 4);
+                        completionTokens = Math.ceil(completionCharsCount / 4);
+
+                        console.log(`[Billing] Partial/Aborted request. Estimated tokens: ${promptTokens}in/${completionTokens}out`);
+                    }
+
+                    if (promptTokens > 0 || completionTokens > 0) {
+                        const baseCost = calculateBaseCostFromTokens(modelId, promptTokens, completionTokens);
+                        console.log(`[Billing] User ${userId}: ${modelId} | ${promptTokens}in/${completionTokens}out | $${baseCost}`);
+                        recordChatUsageAsync(userId, modelId, baseCost);
+                    } else {
+                        console.warn('[Billing] No usage stats found in stream for user', userId);
+                    }
+                } catch (billingErr) {
+                    console.error('Billing error in finally block:', billingErr);
                 }
             }
         },

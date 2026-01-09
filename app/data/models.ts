@@ -123,7 +123,7 @@ export const OPEN_SOURCE_MODELS: Model[] = [
         },
     },
     {
-        id: 'deepseek/deepseek-r1:free',
+        id: 'tngtech/deepseek-r1t2-chimera:free',
         name: 'DeepSeek R1 (Free)',
         provider: 'DeepSeek',
         contextWindow: 64000,
