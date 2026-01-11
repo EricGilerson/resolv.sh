@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // @ts-ignore - allowedDevOrigins might be new or untyped in this version
-  allowedDevOrigins: ['127.0.0.1:3000', 'localhost:3000'],
+  allowedDevOrigins: ['127.0.0.1', 'localhost:3000'],
   experimental: {
     // allowedDevOrigins removed
   },

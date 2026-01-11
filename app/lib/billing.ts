@@ -82,8 +82,11 @@ export async function hasSufficientBalance(userId: string): Promise<boolean> {
 /**
  * Record a chat usage transaction.
  * Deducts from balance and logs to chats table.
+ * Supports consolidated billing:
+ * - isTurnStart=true: Creates NEW record (Turn N+1)
+ * - isTurnStart=false: Updates LATEST record (Turn N)
  */
-export async function recordChatUsage(userId: string, model: string, baseCost: number) {
+export async function recordChatUsage(userId: string, model: string, baseCost: number, sessionId?: string, isTurnStart?: boolean) {
     const { finalCost, markupOrFee } = calculateCost(model, baseCost);
 
     // 1. Get Profile to check Admin status
@@ -109,32 +112,75 @@ export async function recordChatUsage(userId: string, model: string, baseCost: n
         });
 
         if (updateError) {
-            // Fallback or handle error
+            // Fallback
             console.error("RPC failed, trying direct update");
             const newBalance = profile.balance - chargeAmount;
             await supabaseAdmin.from('profiles').update({ balance: newBalance }).eq('id', userId);
         }
 
-        // 4. Check for Auto-Refill Trigger
-        // Get updated balance to be sure? Or calculate locally.
-        // Assuming decrement worked:
+        // 4. Check for Auto-Refill
         const currentBalance = profile.balance - chargeAmount;
-
-        // Trigger if: Auto-Topup is ON AND Balance hit the limit (-10 or less).
         if (profile.auto_topup && currentBalance <= -10.00) {
-            // Trigger Auto-Charge of $10 to bring back to 0.
-            // Warning: If usage was huge and balance is -15, $10 makes it -5.
-            // For safety, maybe we charge $10 or $20 fixed. Plan said $10.
             await chargeUserOffSession(userId, 10);
         }
     }
 
-    // 5. Log to Chats table
+    // 5. Log to Chats table (Smart Turn Logic)
+    if (sessionId) {
+        // Fetch the LATEST record for this session
+        const { data: latestChat } = await supabaseAdmin
+            .from('chats')
+            .select('id, base_cost, final_cost, title')
+            .eq('user_id', userId)
+            .eq('session_id', sessionId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        // LOGIC: Update Existing OR Create New
+        // If it's NOT a turn start and we have a record -> UPDATE IT
+        if (latestChat && !isTurnStart) {
+            const { error: updateError } = await supabaseAdmin
+                .from('chats')
+                .update({
+                    base_cost: latestChat.base_cost + baseCost,
+                    final_cost: latestChat.final_cost + finalCost,
+                    model: model
+                })
+                .eq('id', latestChat.id);
+
+            if (updateError) console.error('Error updating chat turn:', updateError);
+            return;
+        }
+
+        // Otherwise (Turn Start OR No Record) -> INSERT NEW
+        // Calculate next turn number from previous title "Turn X"
+        let nextTurnIndex = 1;
+        if (latestChat && latestChat.title && latestChat.title.startsWith('Turn ')) {
+            const lastIndex = parseInt(latestChat.title.replace('Turn ', ''), 10);
+            if (!isNaN(lastIndex)) nextTurnIndex = lastIndex + 1;
+        }
+
+        const { error: chatError } = await supabaseAdmin.from('chats').insert({
+            user_id: userId,
+            model,
+            base_cost: baseCost,
+            final_cost: finalCost,
+            markup_percentage: profile.is_admin ? 0 : (MODEL_CONFIG[model] === 'PREMIER' ? 10 : 20),
+            session_id: sessionId,
+            title: `Turn ${nextTurnIndex}`
+        });
+
+        if (chatError) console.error('Error logging new chat turn:', chatError);
+        return;
+    }
+
+    // Fallback: Legacy / No-Session Request
     const { error: chatError } = await supabaseAdmin.from('chats').insert({
         user_id: userId,
         model,
         base_cost: baseCost,
-        final_cost: finalCost, // We log what it WOULD cost (or did cost)
+        final_cost: finalCost,
         markup_percentage: profile.is_admin ? 0 : (MODEL_CONFIG[model] === 'PREMIER' ? 10 : 20)
     });
 
@@ -169,8 +215,8 @@ export function calculateBaseCostFromTokens(
  * Async wrapper for recording chat - fire and forget.
  * This is used to allow the API to return quickly while DB updates happen in background.
  */
-export function recordChatUsageAsync(userId: string, modelId: string, baseCost: number) {
-    recordChatUsage(userId, modelId, baseCost).catch(err => {
+export function recordChatUsageAsync(userId: string, modelId: string, baseCost: number, sessionId?: string, isTurnStart?: boolean) {
+    recordChatUsage(userId, modelId, baseCost, sessionId, isTurnStart).catch(err => {
         console.error('FAILED to record async chat usage:', err);
     });
 }
